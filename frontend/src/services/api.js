@@ -26,6 +26,12 @@ export const createUserApi = (data) => ApiFormData.post("/api/user/register", da
 
 export const login =(data) => Api.post("/api/user/loginUser",data);
 
-export const getallUser = () => Api.get("/api/user/getallUser");
+export const getallUser = () => Api.get("/api/user/getallUser",config);
 
-export const deleteUser = (data) => Api.delete(`/api/user/deleteUser/${data}`)
+export const deleteUser = (data) => Api.delete(`/api/user/deleteUser/${data}`,config)
+
+export const getUserById = (id) => Api.get(`/api/user/getUser/${id}`,config);
+
+export const updateUser = (id,data) => Api.put(`/api/user/updateUserById/${id}`,data,config);
+
+

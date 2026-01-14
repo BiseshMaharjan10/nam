@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import {toast} from 'react-hot-toast'
 import { createUserApi } from '../services/Api';
+import { useNavigate } from 'react-router-dom';
 
 
 const Registration = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name:'',
         email:'',
@@ -45,11 +47,11 @@ const Registration = () => {
         }
         if (formData.password !== formData.confirmPassword){
             toast.error('Passwords do not match');
-            return false;s
+            return false;
         }
         return true;
     }
-    ha
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         if(!validate()) return;
@@ -69,6 +71,7 @@ const Registration = () => {
                     password:'',
                     confirmPassword:'',
                 });
+                navigate('/login');
             }
             else{
                 toast.error(response?.data?.message);

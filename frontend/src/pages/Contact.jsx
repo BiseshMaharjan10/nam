@@ -1,11 +1,11 @@
-import React from 'react'
+import { useState } from "react";
 
 const Contact = () => {
-  return (
+   return(
     <div>
-      This is the Contact Us page
+      
     </div>
-  )
-}
+   )
+};
 
 export default Contact
