@@ -23,8 +23,8 @@ const getUserById = async (req,res) =>{
         return res.json({
             message : "User Fetched Sucessfully",
             user : {
-                id : user.id,
-                name: user.username
+                email : user.email,
+                username: user.username
             }
         })
     }catch(error){
@@ -108,6 +108,7 @@ const updateUser = async (req, res) =>{
             password: hashedPassword
         });
         return res.status(200).json({
+            success: true,
             message : "User updated Sucessfully",
             user: {
                 id: user.id,
@@ -196,7 +197,28 @@ const loginUser = async(req,res) =>{
     }
 } 
 
+const getMe = async(req,res) => {
+    const id = req.user.id;
+    try {
+        const user = await User.findByPk(id);
+        return res.json({
+            success : true,
+            user: {
+                id :user.id,
+                username : user.username,
+                email : user.email
+            },
+            message : "User Fetched Sucessfully"
+        })
+    } catch (error) {
+        return res.json({
+            message : "Error Fetching User",
+            error : error.message
+        });
+    }
+}
+
 
 module.exports={
-    addUser,getallUser,getUserById,updateUser,deleteUser, loginUser
+    addUser,getallUser,getUserById,updateUser,deleteUser, loginUser, getMe
 }

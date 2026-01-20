@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
-import Register from './pages/Register';
 import Contact from './pages/Contact';
 import Registration from './pages/registration';
 import {Toaster} from 'react-hot-toast';
@@ -21,7 +20,6 @@ function App() {
       <Routes>
            <Route path="/home" element={<Home/>} />
            <Route path="/login" element={<Login/>} />
-           <Route path="/register" element={<Register/>} />
            <Route path="/contact" element={<Contact/>} />
            <Route path="/" element={<Registration/>} />
            <Route path="/userdash" element={<UserDash/>} />

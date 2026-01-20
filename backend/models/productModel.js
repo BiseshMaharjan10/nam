@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const { sequelize } = require("../database/database");
+const { sequelize } = require("../database/Database");
 const Product = sequelize.define(
     "Product",
     {
@@ -15,6 +15,10 @@ const Product = sequelize.define(
         quantity: {
             type: DataTypes.INTEGER,
             allowNull: false
+        },
+        thumbnail:{
+            type:DataTypes.STRING, // single image
+            allowNull:true,
         },
         rate: {
             type: DataTypes.INTEGER,

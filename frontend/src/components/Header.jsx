@@ -1,20 +1,85 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-
-const Header = () => {
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { getMe } from "../services/Api";
+import { getToken } from "../protected/Auth";
+ 
+const Headers = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+ 
+  useEffect(() => {
+    const fetchMe = async () => {
+      try {
+        const response = await getMe();
+        setUser(response.data.user);
+      } catch (error) {
+        localStorage.removeItem("token");
+        setUser(null);
+      }
+    };
+    if (getToken()) {
+      fetchMe();
+    }
+  }, []);
+ 
+  const handleLogout = () => {
+    const confirmDelete = window.confirm("Are you sure you want to logout this user?");
+    if (!confirmDelete) return;
+    localStorage.removeItem("token");
+ 
+    setUser(null);
+    navigate("/login");
+  };
+ 
   return (
-    <div className="bg-white shadow-md px-6 py-4 flex justify-center gap-4">
-      <Link to="/home" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-        Home
+    <div
+      style={{
+        padding: "10px",
+        backgroundColor: "#f5f5f5",
+        textAlign: "center",
+        fontWeight: "bold",
+      }}
+    >
+      <Link className="p-2 bg-red-400 m-2 rounded-lg text-white" to="/home">
+        home
       </Link>
-      <Link to="/contact"className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-        Contact
+ 
+      <Link className="p-2 bg-red-400 m-2 rounded-lg text-white" to="/contact">
+        about
       </Link>
-      <Link to="/register" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-        Register
-      </Link>
+ 
+      {!user ? (
+        <>
+          <Link
+            to="/login"
+            className="p-2 bg-red-400 m-2 rounded-lg text-white hover:bg-red-600"
+          >
+            login
+          </Link>
+ 
+          <Link
+            to="/"
+            className="p-2 bg-red-400 m-2 rounded-lg text-white hover:bg-red-600"
+          >
+            register
+          </Link>
+        </>
+      ) : (
+        <>
+          <span className="p-2 bg-green-500 m-2 rounded-lg text-white">
+            {user.username}
+          </span>
+ 
+          <button
+            onClick={handleLogout}
+            className="p-2 bg-gray-700 m-2 rounded-lg text-white hover:bg-gray-900"
+          >
+            logout
+          </button>
+        </>
+      )}
     </div>
-  )
-}
-
-export default Header
+  );
+};
+ 
+export default Headers;

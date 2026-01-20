@@ -1,11 +1,11 @@
-import { useState } from "react";
+import React from 'react'
 
 const Contact = () => {
-   return(
+  return (
     <div>
       
     </div>
-   )
-};
+  )
+}
 
 export default Contact

@@ -65,10 +65,11 @@ const Login = () => {
 
       // Navigate based on role
       if (decoded.role === 'admin') {
-        navigate("/admindash")
+        navigate("/admindash",{replace: true})
       } else {
-        navigate("/userdash")
+        navigate("/userdash",{replace: true})
       }
+      window.location.reload();
 
     } catch (error) {
       console.error(error)

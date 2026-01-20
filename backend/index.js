@@ -10,7 +10,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use("/api/user", require('./routes/userRoute'));
-app.use("/api/products/", require('./routes/productRoute'));
+app.use("/productapis/", require('./routes/productRoute'));
 
 // Home Route
 app.get("/", (req, res) => {

@@ -34,4 +34,20 @@ export const getUserById = (id) => Api.get(`/api/user/getUser/${id}`,config);
 
 export const updateUser = (id,data) => Api.put(`/api/user/updateUserById/${id}`,data,config);
 
+export const getMe = () => Api.get("/api/user/getme",config);
+
+
+
+//----------Product--------------//
+
+export const createProduct = (data) => ApiFormData.post("/api/products/addProducts", data);
+
+export const getProductByName = () => Api.get("/api/products/getProductByName",config);
+
+export const getAllProduct = () => Api.get("/api/products/getallProducts",config);
+
+export const getProductById = () => Api.get("/api/products/getProductById",config);
+
+
+
 
