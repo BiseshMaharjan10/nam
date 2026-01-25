@@ -9,8 +9,10 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
+
 app.use("/api/user", require('./routes/userRoute'));
-app.use("/productapis/", require('./routes/productRoute'));
+app.use("/api/products", require('./routes/productRoute'));
 
 // Home Route
 app.get("/", (req, res) => {
@@ -21,7 +23,7 @@ app.get("/", (req, res) => {
 
 const startServer = async () =>{
   await connectDB();
-  await sequelize.sync();
+  await sequelize.sync({alter:true});
   app.listen(3000, () =>{
     console.log(`Srerver is running on port ${3000}`);
     console.log(`Server is running on port http://localhost:3000`);

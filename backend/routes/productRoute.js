@@ -1,10 +1,14 @@
 const express = require("express").Router();
+const uploadProductImages = require("../helpers/multer");
 
-const {getallProducts, addProduct, getProductById, getProductByName}=require('../controllers/productController')
 
-express.get("/getallProducts",getallProducts);
-express.get("/getproductById/:productid",getProductById);
-express.get("/getproductByName/:productname",getProductByName);
-express.post("/addProducts",addProduct);
+const {getAllProducts, addProduct}=require('../controllers/productController');
+const authGuard = require("../helpers/authGuard");
+const isAdmin = require("../helpers/isAdmin");
+
+express.get("/getallProducts",getAllProducts);
+// express.get("/getproductById/:productid",authGuard,isAdmin,uploadProductImages, getProductById);
+// express.get("/getproductByName/:productname",getProductByName);
+express.post("/addProducts",uploadProductImages,addProduct);
 
 module.exports=express;

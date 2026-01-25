@@ -1,209 +1,209 @@
-import React, { useEffect, useState } from 'react';
-import { toast } from "react-hot-toast";
-import { createProduct, getAllProduct } from '../services/Api';
+import { useEffect, useState } from "react";
+import { createProduct, getAllProduct } from "../services/Api";
+import toast from "react-hot-toast";
 
 const Home = () => {
-
-    const [data,setData] = useState([]);
-    const [showForm, setShowForm] = useState(false);
-    const [formData, setFormData] = useState({
+    const [form, setForm] = useState({
         name: "",
+        price: "",
         quantity: "",
-        rate: ""
+        description: "",
     });
+    const [thumbnail, setThumbnail] = useState(null);
+    const [images, setImages] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+    const fetchProducts = async () => {
+        try {
+            const { data } = await getAllProduct();
+            setProducts(data.data.products);
+        } catch (error) {
+            toast.error("Failed to fetch products");
+        }
+    };
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
     const handleChange = (e) => {
-        setFormData({
-        ...formData,
-        [e.target.name]: e.target.value
-        });
+        setForm({ ...form, [e.target.name]: e.target.value });
     };
-    const handleSubmit = (e) => {
+    
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
-        console.log(formData); // send to backend here
+        try {
+            const formData = new FormData();
+            Object.entries(form).forEach(([key, value]) => formData.append(key, value));
 
-        setFormData({ name: "", quantity: "", rate: "" });
-        setShowForm(false);
+            if (thumbnail) formData.append("thumbnail", thumbnail);
+            images.forEach((img) => formData.append("images", img));
+
+            await createProduct(formData);
+            toast.success("Product added successfully");
+
+            setForm({ name: "", price: "", quantity: "", description: "" });
+            setThumbnail(null);
+            setImages([]);
+            fetchProducts(); // Refresh table
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to add product");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const fetchData = async() => {
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this product?")) return;
+
         try {
-            const response = await getAllProduct();
-            if (response?.data?.success) {
-                setData(response.data.data);
-            } else {
-                toast.error(response.data.message);
-            }
+            toast.success("Product deleted successfully");
+            setProducts((prev) => prev.filter((p) => p.id !== id));
         } catch (error) {
-            return toast.error(error.message);
+            toast.error("Failed to delete product");
         }
-    }
+    };
 
-    const addProduct = async() => {
-        try {
-            const dataToSubmit = {
-                productName : formData.name,
-                quantity : formData.quantity,
-                rate : formData.rate
-            }
-            const response = await createProduct(dataToSubmit);
-            if (response?.data?.success) {
-                window.location.reload();
-                return toast.success("Product Added Sucessfully!!");
-            } else {
-                return toast.error(response.data.message);
-            }
-        } catch (error) {
-            return toast.error(error.message);
-        }
-    }
+    return (
+        <div className="container mx-auto mt-8">
+            <h2 className="text-2xl font-semibold mb-4">Add Product</h2>
 
-    useEffect(()=>{
-        fetchData();
-    },[]);
-
-   return (
-    <div className="overflow-x-auto">
-        {/* Button */}
-      <div className="flex justify-end">
-        <button
-          onClick={() => setShowForm(true)}
-          className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md 
-                     hover:bg-blue-700 transition-colors m-5"
-        >
-          + Add Product
-        </button>
-      </div>
-
-      {/* Modal */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-md p-6">
-            <h2 className="text-lg font-semibold mb-4">Add Product</h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text"
-                name="name"
-                placeholder="Product Name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                className="w-full border rounded-md px-3 py-2"
-              />
-
-              <input
-                type="number"
-                name="quantity"
-                placeholder="Quantity"
-                value={formData.quantity}
-                onChange={handleChange}
-                required
-                className="w-full border rounded-md px-3 py-2"
-              />
-
-              <input
-                type="number"
-                name="rate"
-                placeholder="Rate"
-                value={formData.rate}
-                onChange={handleChange}
-                required
-                className="w-full border rounded-md px-3 py-2"
-              />
-
-              <div className="flex justify-end gap-3">
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="bg-white shadow p-6 rounded mb-8">
+                <input
+                    className="w-full border border-gray-300 p-2 rounded mb-3"
+                    name="name"
+                    placeholder="Product Name"
+                    value={form.name}
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    className="w-full border border-gray-300 p-2 rounded mb-3"
+                    type="number"
+                    name="price"
+                    placeholder="Price"
+                    value={form.price}
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    className="w-full border border-gray-300 p-2 rounded mb-3"
+                    type="number"
+                    name="quantity"
+                    placeholder="Quantity"
+                    value={form.quantity}
+                    onChange={handleChange}
+                />
+                <textarea
+                    className="w-full border border-gray-300 p-2 rounded mb-3"
+                    name="description"
+                    placeholder="Description"
+                    value={form.description}
+                    onChange={handleChange}
+                />
+                <label className="block mb-3">
+                    Thumbnail
+                    <input
+                        type="file"
+                        className="mt-1"
+                        onChange={(e) => setThumbnail(e.target.files[0])}
+                    />
+                </label>
+                <label className="block mb-3">
+                    Product Images
+                    <input
+                        type="file"
+                        multiple
+                        className="mt-1"
+                        onChange={(e) => setImages([...e.target.files])}
+                    />
+                </label>
                 <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="px-4 py-2 border rounded-md"
+                    type="submit"
+                    disabled={loading}
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
                 >
-                  Cancel
+                    {loading ? "Adding..." : "Add Product"}
                 </button>
-
-                <button
-                  type="submit"
-                  onClick={()=>{
-                    addProduct();
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  Save
-                </button>
-              </div>
             </form>
-          </div>
+
+            {/* Product Table */}
+            <h3 className="text-xl font-semibold mb-3">All Products</h3>
+
+            <div className="overflow-x-auto">
+                <table className="min-w-full border border-gray-300">
+                    <thead className="bg-green-600 text-white">
+                        <tr>
+                            <th className="py-2 px-4 border border-gray-300">#</th>
+                            <th className="py-2 px-4 border border-gray-300">Thumbnail</th>
+                            <th className="py-2 px-4 border border-gray-300">Name</th>
+                            <th className="py-2 px-4 border border-gray-300">Price</th>
+                            <th className="py-2 px-4 border border-gray-300">Qty</th>
+                            <th className="py-2 px-4 border border-gray-300">Images</th>
+                            <th className="py-2 px-4 border border-gray-300">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {products.length === 0 ? (
+                            <tr>
+                                <td colSpan="7" className="text-center py-4">
+                                    No products found
+                                </td>
+                            </tr>
+                        ) : (
+                            products.map((product, index) => (
+                                <tr
+                                    key={product.id}
+                                    className="even:bg-gray-100 hover:bg-gray-200 transition-colors"
+                                >
+                                    <td className="py-2 px-4 border border-gray-300">{index + 1}</td>
+                                    <td className="py-2 px-4 border border-gray-300">
+                                        {product.thumbnail ? (
+                                            <img
+                                                src={`${API_BASE}${product.thumbnail}`}
+                                                alt={product.name}
+                                                className="w-12 h-12 object-cover rounded"
+                                            />
+                                        ) : (
+                                            "No Image"
+                                        )}
+                                        <div style={{ display: "flex", gap: "10px" }}>
+                                            {product.images.map((img, index) => (
+                                                <img
+                                                    key={index}
+                                                     src={`${API_BASE}${product.images[index]}`}
+                                                    alt={`${product.name} ${index + 1}`}
+                                                    style={{ width: "100px", height: "100px", objectFit: "cover" }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </td>
+                                    <td className="py-2 px-4 border border-gray-300">{product.name}</td>
+                                    <td className="py-2 px-4 border border-gray-300">₹ {product.price}</td>
+                                    <td className="py-2 px-4 border border-gray-300">{product.quantity}</td>
+                                    <td className="py-2 px-4 border border-gray-300">{product.images?.length || 0}</td>
+                                    <td className="py-2 px-4 border border-gray-300">
+                                        <button
+                                            onClick={() => handleDelete(product.id)}
+                                            className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded transition"
+                                        >
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
-      )}
-      <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-              S.N
-            </th>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-              Product Name
-            </th>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-              Quantity
-            </th>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-              Rate
-            </th>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-              Actions
-            </th>
-          </tr>
-        </thead>
-
-        <tbody className="divide-y divide-gray-200 bg-white">
-            {data.map((product, index) => (
-              <tr
-                key={product._id || index}
-                className="hover:bg-gray-50 transition-colors"
-              >
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {index + 1}
-                </td>
-                <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                  {product.productName}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {product.quantity}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {product.rate}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => {
-                        //navigate(`/edit/${product.id}`)
-                      }}
-                      className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md 
-                                hover:bg-blue-700 transition-colors"
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      onClick={()=>{
-                        //handleDelete(product.id)
-                      }}
-                      className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md 
-                                hover:bg-red-700 transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-
-              </tr>
-            ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
+    );
+};
 
 export default Home

@@ -46,7 +46,7 @@ export const getProductByName = () => Api.get("/api/products/getProductByName",c
 
 export const getAllProduct = () => Api.get("/api/products/getallProducts",config);
 
-export const getProductById = () => Api.get("/api/products/getProductById",config);
+export const getProductById = () => Api.get(`/api/products/getProductById/${id}`,config);
 
 
 
